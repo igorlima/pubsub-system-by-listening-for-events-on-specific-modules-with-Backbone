@@ -8,11 +8,12 @@ require.config({
     //appbase: 'appbase.v2.2.15.min',
     login: 'login',
     enter: 'enter',
-    pubsub: 'PubSubJS',
-    appbaseSync: 'appbaseSync',
+    backbone: 'backbone.v1.2.0.min',
+    underscore: 'underscore.v1.8.3.min',
+    appbaseSync: 'appbase-sync-with-forceview',
     colorpicker: 'bootstrap-colorpicker.min',
-    typeahead: 'typeahead.jquery',
-    observeNS: 'observeNS'
+    typeahead: 'typeahead.jquery.v0.10.5',
+    observeNS: 'appbase-namespace-observer'
   },
   shim: {
     bootstrap: {
@@ -24,12 +25,13 @@ require.config({
     d3: {
       exports: 'd3'
     },
+    backbone: [ 'underscore' ],
     colorpicker: ['jquery'],
     typeahed: ['jquery']
   }
 });
 
-require(['jquery', 'bootstrap', 'login', 'enter', 'pubsub'], function($, bootstrap, login, enter, PubSub) {
+require(['jquery', 'bootstrap', 'login', 'enter'], function($, bootstrap, login, enter ) {
   $('.row.login').removeClass('hidden');
   $('button.login').on('click', login);
   $('button.enter').on('click', enter);

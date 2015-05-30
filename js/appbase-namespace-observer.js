@@ -51,5 +51,5 @@ define(['jquery', 'appbaseSync', 'typeahead'], function($, AppbaseSync) {
   return {
     init: init
   }
-  
+
 });

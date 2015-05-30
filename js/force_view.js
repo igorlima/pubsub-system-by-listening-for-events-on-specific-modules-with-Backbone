@@ -1,5 +1,5 @@
 // http://bl.ocks.org/benzguo/4370043
-define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
+define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
   var width = 960,
       height = 500,
       fill = d3.scale.category20(),
@@ -18,11 +18,12 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
       selected_link,
       mousedown_link,
       mousedown_node,
-      mouseup_node;
+      mouseup_node,
+      EventChannel = $.extend( {}, Backbone.Events );
 
-  function init(namespace) {
+  function init(namespace, element_selector) {
     // init svg
-    outer = d3.select("#chart")
+    outer = d3.select(element_selector)
       .append("svg:svg")
       .attr("width", width)
       .attr("height", height)
@@ -114,8 +115,10 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
 
         // add link to mousedown node
         links.push(link);
-        PubSub.publish('forceView:addedNode', node);
-        PubSub.publish('forceView:addedLink', link);
+
+        EventChannel.trigger( 'addedNode', node );
+        EventChannel.trigger( 'addedLink', link);
+
       }
 
       redraw();
@@ -206,7 +209,7 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
             // redraw();
           })
         .on("dblclick", function(d) {
-            PubSub.publish('forceView:editedNode', d);
+            EventChannel.trigger( 'editedNode', d );
           })
         .on("mouseup", 
           function(d) { 
@@ -217,7 +220,7 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
               // add link
               var link = {source: mousedown_node, target: mouseup_node};
               links.push(link);
-              PubSub.publish('forceView:addedLink', link);
+              EventChannel.trigger( 'addedLink', link );
 
               // select new link
               selected_link = link;
@@ -272,11 +275,11 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
         if (selected_node) {
           nodes.splice(nodes.indexOf(selected_node), 1);
           spliceLinksForNode(selected_node);
-          PubSub.publish('forceView:deletedNode', selected_node);
+          EventChannel.trigger( 'deletedNode', selected_node );
         }
         else if (selected_link) {
           links.splice(links.indexOf(selected_link), 1);
-          PubSub.publish('forceView:deletedLink', selected_link);
+          EventChannel.trigger( 'deletedLink', selected_link );
         }
         selected_link = null;
         selected_node = null;
@@ -306,21 +309,21 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
     }
   };
 
-  PubSub.subscribe('forceView:clear', function(msg, callback) {
+  EventChannel.on( 'clear', function( callback ) {
     while (nodes.pop());
     while (links.pop());
     redraw();
     callback && callback();
-  });
-  PubSub.subscribe('forceView:deleteNode', function(msg, node) {
+  } );
+  EventChannel.on( 'deleteNode', function( node ) {
     var selected_node = searchNode(node);
     if (selected_node) {
       nodes.splice(nodes.indexOf(selected_node), 1);
       spliceLinksForNode(selected_node);
       redraw();
     }
-  });
-  PubSub.subscribe('forceView:deleteLink', function(msg, link) {
+  } );
+  EventChannel.on( 'deleteLink', function( link ) {
     var source, target, selected_link;
     source = searchNode(link.source);
     target = searchNode(link.target);
@@ -329,15 +332,15 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
       links.splice(links.indexOf(selected_link), 1);
       redraw();
     }
-  });
-  PubSub.subscribe('forceView:addNode', function(msg, node) {
+  } );
+  EventChannel.on( 'addNode', function( node ) {
     var selected_node = searchNode(node);
     if (!selected_node) {
       nodes.push(node);
       redraw();
     }
-  });
-  PubSub.subscribe('forceView:addLink', function(msg, link) {
+  } );
+  EventChannel.on( 'addLink', function( link ) {
     var source, target, selected_link;
     link = link || {};
     source = searchNode(link.source);
@@ -347,17 +350,18 @@ define(['d3', 'jquery', 'pubsub'], function(d3, $, PubSub) {
       links.push({source:source, target:target, id: link.id});
       redraw();
     }
-  });
-  PubSub.subscribe('forceView:editNode', function(msg, node) {
+  } );
+  EventChannel.on( 'editNode', function( node ) {
     var selected_node = searchNode(node);
     if (selected_node) {
       $.extend(selected_node, node);
       redraw();
     }
-  });
+  } );
 
   return {
     init: init,
-    redraw: redraw
+    redraw: redraw,
+    channel: EventChannel
   };
 });
