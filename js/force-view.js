@@ -165,13 +165,13 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
 
     link.enter().insert("line", ".node")
         .attr("class", "link")
-        .on("mousedown", 
-          function(d) { 
-            mousedown_link = d; 
+        .on("mousedown",
+          function(d) {
+            mousedown_link = d;
             if (mousedown_link == selected_link) selected_link = null;
-            else selected_link = mousedown_link; 
-            selected_node = null; 
-            redraw(); 
+            else selected_link = mousedown_link;
+            selected_node = null;
+            redraw();
           })
 
     link.exit().remove();
@@ -184,15 +184,15 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
     node.enter().insert("circle")
         .attr("class", "node")
         .attr("r", 5)
-        .on("mousedown", 
-          function(d) { 
+        .on("mousedown",
+          function(d) {
             // disable zoom
             vis.call(d3.behavior.zoom().on("zoom"), null);
 
             mousedown_node = d;
             if (mousedown_node == selected_node) selected_node = null;
-            else selected_node = mousedown_node; 
-            selected_link = null; 
+            else selected_node = mousedown_node;
+            selected_link = null;
 
             // reposition drag line
             drag_line
@@ -202,7 +202,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
                 .attr("x2", mousedown_node.x)
                 .attr("y2", mousedown_node.y);
 
-            redraw(); 
+            redraw();
           })
         .on("mousedrag",
           function(d) {
@@ -211,10 +211,10 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
         .on("dblclick", function(d) {
             ForceViewEventChannel.trigger( 'editedNode', d );
           })
-        .on("mouseup", 
-          function(d) { 
+        .on("mouseup",
+          function(d) {
             if (mousedown_node) {
-              mouseup_node = d; 
+              mouseup_node = d;
               if (mouseup_node == mousedown_node) { resetMouseVars(); return; }
 
               // add link
@@ -229,7 +229,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
               // enable zoom
               vis.call(d3.behavior.zoom().on("zoom"), rescale);
               redraw();
-            } 
+            }
           })
       .transition()
         .duration(750)
@@ -259,7 +259,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
   }
 
   function spliceLinksForNode(node) {
-    var toSplice = links.filter( function(l) { 
+    var toSplice = links.filter( function(l) {
       return (l.source === node) || (l.target === node);
     });
     toSplice.map( function(l) {
@@ -294,7 +294,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       return !!(node && node.id == n.id);
     })[0];
   };
- 
+
   function searchLink(link) {
     if (link.source && link.target) {
       return links.filter( function(l) {
