@@ -8,7 +8,9 @@ define(['jquery', 'forceView'], function($, forceView) {
         console.log('Logged in as:', authObj.uid);
         $(".row.login").hide();
         $('.row.force-view').removeClass('hidden');
-        forceView.init(authObj.name, "#chart");
+        var view = new MyView({
+          namespace: authObj.name
+        });
         require(['nsObserver'], function(Observer) {
           Observer.init(authObj);
         });

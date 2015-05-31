@@ -5,9 +5,9 @@
   After that, create your own application's name,
   then new learners can use my API calls left. Thanks.
 **/
-define(['jquery', 'forceView'], function($, forceView) {
+define(['jquery', 'myView'], function($, MyView) {
   return function(e, callback) {
-    var authObj = {
+    var view, authObj = {
       name: 'Igor Ribeiro Lima',
       firstname: 'Igor',
       lastname: 'Lima'
@@ -19,7 +19,11 @@ define(['jquery', 'forceView'], function($, forceView) {
 
     $(".row.login").hide();
     $('.row.force-view').removeClass('hidden');
-    forceView.init(authObj.name, "#chart");
+
+    view = new MyView({
+      namespace: authObj.name
+    });
+
     require(['nsObserver'], function(Observer) {
       Observer.init(authObj);
     });

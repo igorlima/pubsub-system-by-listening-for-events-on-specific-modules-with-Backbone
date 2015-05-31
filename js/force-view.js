@@ -21,7 +21,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       mouseup_node,
       ForceViewEventChannel = $.extend( {}, Backbone.Events );
 
-  function init(namespace, element_selector) {
+  function init(element_selector, callback) {
     // init svg
     outer = d3.select(element_selector)
       .append("svg:svg")
@@ -68,9 +68,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
     d3.select(window).on("keydown", keydown);
 
     redraw();
-    require(['appbaseSync'], function(AppbaseSync) {
-      AppbaseSync.init(namespace);
-    });
+    callback && callback();
   }
 
   // focus on svg
@@ -310,6 +308,10 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
   };
 
   ForceViewEventChannel.on( 'clear', function( callback ) {
+    if (!nodes || !links) {
+      callback && callback();
+      return;
+    }
     while (nodes.pop());
     while (links.pop());
     redraw();

@@ -1,4 +1,4 @@
-define(['forceView', 'backbone', 'jquery', 'colorpicker'], function(ForceView, Backbone, $) {
+define(['forceView', 'backbone', 'jquery', 'mymodel', 'colorpicker'], function(ForceView, Backbone, $, MyModel) {
   var nsref, AppbaseEventChannel, appbase_namespace, d3_element_selector;
 
   AppbaseEventChannel = $.extend( {}, Backbone.Events );
@@ -10,7 +10,7 @@ define(['forceView', 'backbone', 'jquery', 'colorpicker'], function(ForceView, B
     options.callback && options.callback();
   } );
 
-  AppbaseEventChannel.on( 'remove-all-node', function( nsref ) {
+  AppbaseEventChannel.on( 'remove-all-node', function() {
     nsref.on('vertex_added', function(err, vertexRef, obj) {
       if (!err) {
         vertexRef.destroy();
@@ -52,33 +52,27 @@ define(['forceView', 'backbone', 'jquery', 'colorpicker'], function(ForceView, B
     });
   } );
 
-  AppbaseEventChannel.on( 'editNode', function( options ) {
-    nsref.v(options.nodeId).setData({
-      color: options.color,
-      label: options.label
-    });
-  } );
-
   $('#editNodeModal #textColorNode').colorpicker();
   $('button.add-node').on('click', function() {
     ForceView.channel.trigger( 'addedNode', {} );
   });
   $('button.remove-all-node').on('click', function() {
-    AppbaseEventChannel.trigger( 'remove-all-node', nsref );
+    AppbaseEventChannel.trigger( 'remove-all-node' );
   });
 
   ForceView.channel.on( 'editedNode', function( node ) {
-    $('#textColorNode').val(node.color);
-    $('#textNode').val(node.label);
+    var model = new MyModel(node);
+    model.set( 'nsref', nsref);
+    $('#textColorNode').val( model.get('color') );
+    $('#textNode').val(node.get('label'));
     $('#editNodeModal').modal('show');
     $('#editNodeModal button.btn.btn-primary')
       .off('click')
       .on('click', function(e) {
-        AppbaseEventChannel.trigger( 'editNode', {
-          nodeId: node.id,
+        model.set({
           color: $('#textColorNode').val(),
           label: $('#textNode').val()
-        } );
+        });
         $('#editNodeModal').modal('hide');
       });
   } );

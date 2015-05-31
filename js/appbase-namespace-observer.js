@@ -1,4 +1,4 @@
-define(['jquery', 'appbaseSync', 'typeahead'], function($, AppbaseSync) {
+define(['jquery', 'typeahead'], function($) {
   var observeInput = '#observe-someone-else',
       substringMatcher = function(strs) {
         return function findMatches(q, cb) {
@@ -44,7 +44,7 @@ define(['jquery', 'appbaseSync', 'typeahead'], function($, AppbaseSync) {
       properties && properties.name && namespaces.push( properties.name );
     });
     $(observeInput).bind('typeahead:selected', function(event, obj, name) {
-      AppbaseSync.init(obj.value);
+      console.warn(obj.value);
     });
   };
 
