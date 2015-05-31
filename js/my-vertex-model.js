@@ -15,9 +15,11 @@ define(['backbone', 'forceView'], function(Backbone, ForceView) {
 
     sync: function() {
       var model = this;
+
       this.vertexRef.on('properties', function(error, ref, snapObj) {
         ForceView.channel.trigger('editNode', snapObj.properties());
       });
+
       this.vertexRef.on('edge_added', function(error, edgeRef, snapObj) {
         ForceView.channel.trigger('addLink', {
           source: {id: model.get('id')},
@@ -25,9 +27,11 @@ define(['backbone', 'forceView'], function(Backbone, ForceView) {
           id: edgeRef.name()
         });
       });
+
       this.vertexRef.on('edge_removed', function(error, edgeRef, snapObj) {
         ForceView.channel.trigger('deleteLink', {id: edgeRef.name()} );
       });
+
     },
 
     change: function() {
