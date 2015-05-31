@@ -13,7 +13,7 @@ require.config({
     appbaseSync: 'appbase-sync-with-forceview',
     colorpicker: 'bootstrap-colorpicker.min',
     typeahead: 'typeahead.jquery.v0.10.5',
-    observeNS: 'appbase-namespace-observer'
+    nsObserver: 'appbase-namespace-observer'
   },
   shim: {
     bootstrap: {

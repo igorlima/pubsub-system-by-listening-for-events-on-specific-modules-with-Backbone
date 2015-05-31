@@ -20,8 +20,8 @@ define(['jquery', 'forceView'], function($, forceView) {
     $(".row.login").hide();
     $('.row.force-view').removeClass('hidden');
     forceView.init(authObj.name, "#chart");
-    require(['observeNS'], function(Observe) {
-      Observe.init(authObj);
+    require(['nsObserver'], function(Observer) {
+      Observer.init(authObj);
     });
 
     callback && callback(authObj);
