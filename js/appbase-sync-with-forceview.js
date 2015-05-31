@@ -1,17 +1,70 @@
-define(['forceView', 'jquery', 'colorpicker'], function(ForceView, $) {
-  var nsref;
+define(['forceView', 'backbone', 'jquery', 'colorpicker'], function(ForceView, Backbone, $) {
+  var nsref, AppbaseEventChannel, appbase_namespace, d3_element_selector;
+
+  AppbaseEventChannel = $.extend( {}, Backbone.Events );
+
+  AppbaseEventChannel.on( 'setup', function( options ) {
+    appbase_namespace = options.namespace;
+    d3_element_selector = options.element_selector;
+    nsref = appbase_namespace ? Appbase.ns( appbase_namespace.replace(/[ /~]/g, '') ) : nsref;
+    options.callback && options.callback();
+  } );
+
+  AppbaseEventChannel.on( 'remove-all-node', function( nsref ) {
+    nsref.on('vertex_added', function(err, vertexRef, obj) {
+      if (!err) {
+        vertexRef.destroy();
+      }
+    });
+  } );
+
+  AppbaseEventChannel.on( 'watch:vertex:properties', function( vertexRef ) {
+    vertexRef.on('properties', function(error, ref, snapObj) {
+      ForceView.channel.trigger('editNode', snapObj.properties());
+    });
+  } );
+
+  AppbaseEventChannel.on( 'watch:vertex:edge_removed', function( vertexRef ) {
+    vertexRef.on('edge_removed', function(error, edgeRef, snapObj) {
+      ForceView.channel.trigger('deleteLink', {id: edgeRef.name()} );
+    });
+  } );
+
+  AppbaseEventChannel.on( 'watch:vertex:edge_added', function( vertexRef ) {
+    vertexRef.on('edge_added', function(error, edgeRef, snapObj) {
+      AppbaseEventChannel.trigger( 'addLink', {
+        vertexRef: vertexRef,
+        edgeRef: edgeRef
+      } );
+    });
+  } );
+
+  AppbaseEventChannel.on( 'addLink', function( options ) {
+    var vertexRef = options.vertexRef, edgeRef = options.edgeRef;
+    vertexRef.once('properties', function(error_source, ref_target, obj_target) {
+      edgeRef && edgeRef.once('properties', function(error_target, ref_source, obj_source) {
+        ForceView.channel.trigger('addLink', {
+          source: obj_source.properties(),
+          target: obj_target.properties(),
+          id: edgeRef.name()
+        });
+      });
+    });
+  } );
+
+  AppbaseEventChannel.on( 'editNode', function( options ) {
+    nsref.v(options.nodeId).setData({
+      color: options.color,
+      label: options.label
+    });
+  } );
 
   $('#editNodeModal #textColorNode').colorpicker();
   $('button.add-node').on('click', function() {
     ForceView.channel.trigger( 'addedNode', {} );
   });
   $('button.remove-all-node').on('click', function() {
-    nsref.on('vertex_added', function(err, vertexRef, obj) {
-      if (!err) {
-        vertexRef.destroy();
-      }
-      init();
-    });
+    AppbaseEventChannel.trigger( 'remove-all-node', nsref );
   });
 
   ForceView.channel.on( 'editedNode', function( node ) {
@@ -21,13 +74,15 @@ define(['forceView', 'jquery', 'colorpicker'], function(ForceView, $) {
     $('#editNodeModal button.btn.btn-primary')
       .off('click')
       .on('click', function(e) {
-        nsref.v(node.id).setData({
+        AppbaseEventChannel.trigger( 'editNode', {
+          nodeId: node.id,
           color: $('#textColorNode').val(),
           label: $('#textNode').val()
-        });
+        } );
         $('#editNodeModal').modal('hide');
       });
   } );
+
   ForceView.channel.on( 'addedNode', function( node ) {
     var id = Appbase.uuid(), vref = nsref.v(id);
     node.id = id;
@@ -55,11 +110,9 @@ define(['forceView', 'jquery', 'colorpicker'], function(ForceView, $) {
   ForceView.channel.trigger('deleteNode', {});
 
   function init(namespace) {
-    if (!namespace) {
+    if (!nsref || !namespace) {
       return;
     }
-
-    nsref = namespace ? Appbase.ns( namespace.replace(/[ /~]/g, '') ) : nsref;
     nsref.off('vertex_added');
     nsref.off('vertex_removed');
     nsref.on('vertex_added', function(err, vertexRef, obj) {
@@ -67,35 +120,28 @@ define(['forceView', 'jquery', 'colorpicker'], function(ForceView, $) {
       ForceView.channel.trigger( 'addNode', $.extend(obj.properties() || {}, {
         id: vertexRef.name()
       }));
-      vertexRef.on('properties', function(error, ref, snapObj) {
-        ForceView.channel.trigger('editNode', snapObj.properties());
-      });
-      vertexRef.on('edge_added', function(error, edgeRef, snapObj) {
-        vertexRef.once('properties', function(error_source, ref_target, obj_target) {
-          edgeRef && edgeRef.once('properties', function(error_target, ref_source, obj_source) {
-            ForceView.channel.trigger('addLink', {
-              source: obj_source.properties(),
-              target: obj_target.properties(),
-              id: edgeRef.name()
-            });
-          });
-        });
-      });
-      vertexRef.on('edge_removed', function(error, edgeRef, snapObj) {
-        ForceView.channel.trigger('deleteLink', {id: edgeRef.name()});
-      });
+      AppbaseEventChannel.trigger( 'watch:vertex:properties', vertexRef );
+      AppbaseEventChannel.trigger( 'watch:vertex:edge_added', vertexRef );
+      AppbaseEventChannel.trigger( 'watch:vertex:edge_removed', vertexRef );
     });
     nsref.on('vertex_removed', function(err, vertexRef, obj) {
       ForceView.channel.trigger('deleteNode', obj.properties());
     });
     console.log('appbaseSync loaded');
+    console.log('namespace: ' + namespace);
   }
 
   return {
-    init: function (namespace) {
-      ForceView.channel.trigger('clear', function() {
-        init(namespace, "#chart");
-      });
+    init: function( namespace ) {
+      AppbaseEventChannel.trigger( 'setup', {
+        namespace: namespace,
+        element_selector: "#chart",
+        callback: function() {
+          ForceView.channel.trigger( 'clear', function() {
+            init(appbase_namespace, d3_element_selector);
+          } );
+        }
+      } );
     }
   };
 });

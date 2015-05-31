@@ -19,7 +19,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       mousedown_link,
       mousedown_node,
       mouseup_node,
-      EventChannel = $.extend( {}, Backbone.Events );
+      ForceViewEventChannel = $.extend( {}, Backbone.Events );
 
   function init(namespace, element_selector) {
     // init svg
@@ -116,8 +116,8 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
         // add link to mousedown node
         links.push(link);
 
-        EventChannel.trigger( 'addedNode', node );
-        EventChannel.trigger( 'addedLink', link);
+        ForceViewEventChannel.trigger( 'addedNode', node );
+        ForceViewEventChannel.trigger( 'addedLink', link);
 
       }
 
@@ -209,7 +209,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
             // redraw();
           })
         .on("dblclick", function(d) {
-            EventChannel.trigger( 'editedNode', d );
+            ForceViewEventChannel.trigger( 'editedNode', d );
           })
         .on("mouseup", 
           function(d) { 
@@ -220,7 +220,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
               // add link
               var link = {source: mousedown_node, target: mouseup_node};
               links.push(link);
-              EventChannel.trigger( 'addedLink', link );
+              ForceViewEventChannel.trigger( 'addedLink', link );
 
               // select new link
               selected_link = link;
@@ -275,11 +275,11 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
         if (selected_node) {
           nodes.splice(nodes.indexOf(selected_node), 1);
           spliceLinksForNode(selected_node);
-          EventChannel.trigger( 'deletedNode', selected_node );
+          ForceViewEventChannel.trigger( 'deletedNode', selected_node );
         }
         else if (selected_link) {
           links.splice(links.indexOf(selected_link), 1);
-          EventChannel.trigger( 'deletedLink', selected_link );
+          ForceViewEventChannel.trigger( 'deletedLink', selected_link );
         }
         selected_link = null;
         selected_node = null;
@@ -309,13 +309,13 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
     }
   };
 
-  EventChannel.on( 'clear', function( callback ) {
+  ForceViewEventChannel.on( 'clear', function( callback ) {
     while (nodes.pop());
     while (links.pop());
     redraw();
     callback && callback();
   } );
-  EventChannel.on( 'deleteNode', function( node ) {
+  ForceViewEventChannel.on( 'deleteNode', function( node ) {
     var selected_node = searchNode(node);
     if (selected_node) {
       nodes.splice(nodes.indexOf(selected_node), 1);
@@ -323,7 +323,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       redraw();
     }
   } );
-  EventChannel.on( 'deleteLink', function( link ) {
+  ForceViewEventChannel.on( 'deleteLink', function( link ) {
     var source, target, selected_link;
     source = searchNode(link.source);
     target = searchNode(link.target);
@@ -333,14 +333,14 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       redraw();
     }
   } );
-  EventChannel.on( 'addNode', function( node ) {
+  ForceViewEventChannel.on( 'addNode', function( node ) {
     var selected_node = searchNode(node);
     if (!selected_node) {
       nodes.push(node);
       redraw();
     }
   } );
-  EventChannel.on( 'addLink', function( link ) {
+  ForceViewEventChannel.on( 'addLink', function( link ) {
     var source, target, selected_link;
     link = link || {};
     source = searchNode(link.source);
@@ -351,7 +351,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
       redraw();
     }
   } );
-  EventChannel.on( 'editNode', function( node ) {
+  ForceViewEventChannel.on( 'editNode', function( node ) {
     var selected_node = searchNode(node);
     if (selected_node) {
       $.extend(selected_node, node);
@@ -362,6 +362,6 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
   return {
     init: init,
     redraw: redraw,
-    channel: EventChannel
+    channel: ForceViewEventChannel
   };
 });
