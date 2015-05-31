@@ -1,21 +1,20 @@
 require.config({
   baseUrl: 'js',
   paths: {
-    jquery: 'jquery.v1.11.2.min',
-    forceView: 'force-view',
-    bootstrap: 'bootstrap.min',
-    d3: 'd3.v2.min',
-    //appbase: 'appbase.v2.2.15.min',
-    login: 'fb-login',
-    enter: 'enter',
     backbone: 'backbone.v1.2.0.min',
-    vertexModel: 'my-vertex-model',
-    nsModel: 'my-namespace-model',
-    myView: 'my-view',
-    underscore: 'underscore.v1.8.3.min',
-    appbaseSync: 'appbase-sync-with-forceview',
+    bootstrap: 'bootstrap.min',
     colorpicker: 'bootstrap-colorpicker.min',
+    d3: 'd3.v2.min',
+    jquery: 'jquery.v1.11.2.min',
     typeahead: 'typeahead.jquery.v0.10.5',
+    underscore: 'underscore.v1.8.3.min',
+
+    enter: 'enter',
+    forceView: 'force-view',
+    login: 'fb-login',
+    myView: 'my-view',
+    nsModel: 'my-namespace-model',
+    vertexModel: 'my-vertex-model',
     nsObserver: 'appbase-namespace-observer'
   },
   shim: {
