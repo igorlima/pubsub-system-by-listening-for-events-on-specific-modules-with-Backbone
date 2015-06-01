@@ -19,12 +19,14 @@ define(['jquery', 'backbone', 'nsModel', 'whoelseModel', 'loginModel', 'typeahea
     },
 
     initialize: function( options ) {
+      var view = this;
       this.whoelseModel = new WhoElseModel();
       this.loginModel = new LoginModel();
       this.$el.find('#editNodeModal #textColorNode').colorpicker();
       this.$el.find('#observe-someone-else')
         .bind('typeahead:selected', function(event, obj, name) {
-          console.warn(obj.value);
+          console.warn('appbase namespace changed: ' + obj.value);
+          view.nsModel.initSync( obj.value );
         });
       this.whoelseModel.on('change:namespaces', this.updateWhoElse, this);
       this.loginModel.on( 'change:authObj', this.sync, this );

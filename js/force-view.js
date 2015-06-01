@@ -23,6 +23,7 @@ define(['d3', 'jquery', 'backbone'], function(d3, $, Backbone) {
 
   function init(element_selector, callback) {
     // init svg
+    $(element_selector).empty();
     outer = d3.select(element_selector)
       .append("svg:svg")
       .attr("width", width)
