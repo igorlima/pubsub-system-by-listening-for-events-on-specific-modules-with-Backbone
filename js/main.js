@@ -20,9 +20,6 @@ require.config({
     bootstrap: {
       deps: ['jquery']
     },
-    login: {
-      //deps: ['appbase']
-    },
     d3: {
       exports: 'd3'
     },

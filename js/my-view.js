@@ -6,7 +6,7 @@
   then new learners can use my API calls left. Thanks.
 **/
 
-define(['jquery', 'backbone', 'nsModel', 'whoelseModel', 'loginModel', 'typeahead'], function($, Backbone, NamespaceModel, WhoElseModel, LoginModel) {
+define(['jquery', 'backbone', 'nsModel', 'whoelseModel', 'loginModel', 'typeahead', 'colorpicker'], function($, Backbone, NamespaceModel, WhoElseModel, LoginModel) {
 
   return Backbone.View.extend({
     el: 'body',
@@ -21,6 +21,7 @@ define(['jquery', 'backbone', 'nsModel', 'whoelseModel', 'loginModel', 'typeahea
     initialize: function( options ) {
       this.whoelseModel = new WhoElseModel();
       this.loginModel = new LoginModel();
+      this.$el.find('#editNodeModal #textColorNode').colorpicker();
       this.$el.find('#observe-someone-else')
         .bind('typeahead:selected', function(event, obj, name) {
           console.warn(obj.value);
