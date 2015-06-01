@@ -9,13 +9,12 @@ require.config({
     typeahead: 'typeahead.jquery.v0.10.5',
     underscore: 'underscore.v1.8.3.min',
 
-    enter: 'enter',
     forceView: 'force-view',
-    login: 'fb-login',
+    loginModel: 'my-login-model',
     myView: 'my-view',
     nsModel: 'my-namespace-model',
-    vertexModel: 'my-vertex-model',
-    nsObserver: 'appbase-namespace-observer'
+    whoelseModel: 'my-whoelse-model',
+    vertexModel: 'my-vertex-model'
   },
   shim: {
     bootstrap: {
@@ -33,8 +32,6 @@ require.config({
   }
 });
 
-require(['jquery', 'bootstrap', 'login', 'enter'], function($, bootstrap, login, enter ) {
-  $('.row.login').removeClass('hidden');
-  $('button.login').on('click', login);
-  $('button.enter').on('click', enter);
+require(['jquery', 'bootstrap', 'myView'], function($, bootstrap, MyView) {
+  new MyView();
 });
